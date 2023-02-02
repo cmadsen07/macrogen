@@ -8,7 +8,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[("layout.ui", ".")],
+    datas=[("layout.ui", "."), ("ahk_logo.ico", ".")],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -37,6 +37,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon="ahk_logo.ico",
 )
 coll = COLLECT(
     exe,

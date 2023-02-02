@@ -1,7 +1,8 @@
 # File: main.py
 import sys
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QApplication, QFileDialog, QInputDialog
+from PySide6.QtWidgets import QApplication, QFileDialog
+from PySide6 import QtGui
 from PySide6.QtCore import QFile, QIODevice
 import json
 import re
@@ -290,6 +291,8 @@ if __name__ == "__main__":
         sys.exit(-1)
 
     action_handler = ActionHandler(window)
+
+    app.setWindowIcon(QtGui.QIcon('ahk_logo.ico'))
     
     window.show()
 
