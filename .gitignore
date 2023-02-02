@@ -4,7 +4,7 @@ TODO.md
 .gitattributes
 
 backups/
-_pycache_/
+__pycache__/
 build/
 dist/
 
