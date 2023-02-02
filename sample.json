@@ -1,0 +1,22 @@
+{
+    "editors": [
+        "Overleaf",
+        "Sublime",
+        "Notepad",
+        "Visual Studio Code"
+    ],
+    "macros": [
+        {
+            "name": "parentheses",
+            "trigger": "`t",
+            "hotstring": "((",
+            "text": "\\left( #0 \\right)"
+        },
+        {
+            "name": "fraction",
+            "trigger": "`t",
+            "hotstring": "frac",
+            "text": "\\frac{#1}{#2}#0"
+        }
+    ]
+}
