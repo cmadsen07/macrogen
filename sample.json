@@ -7,10 +7,10 @@
     ],
     "macros": [
         {
-            "name": "parentheses",
+            "name": "begin_align_star",
             "trigger": "`t",
-            "hotstring": "((",
-            "text": "\\left( #0 \\right)"
+            "hotstring": "bsal",
+            "text": "\\begin{align*}\n\t#0\n\\end{align*}"
         },
         {
             "name": "fraction",

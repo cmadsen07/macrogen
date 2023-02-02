@@ -1,0 +1,9 @@
+backups/
+_pycache_/
+build/
+dist/
+
+*.ahk
+*.json
+
+
