@@ -114,6 +114,13 @@
            </layout>
           </item>
           <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Macro text</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QTextEdit" name="textEdit"/>
           </item>
          </layout>

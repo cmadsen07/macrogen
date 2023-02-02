@@ -1,11 +1,11 @@
 import json
 import re
 
-# f = open("sample.json")
+f = open("test.json")
 
-# data = json.load(f)
+data = json.load(f)
 
-# f.close()
+f.close()
 
 
 class JSON_Parser:
@@ -15,6 +15,8 @@ class JSON_Parser:
 
     def handle_json(self, lines):
         original_text = list(lines)
+        if("#0" not in lines[0]):
+            lines[0] += "#0"
         variables = []
         variables_index = {}
         last_line = int()
@@ -109,14 +111,21 @@ class JSON_Parser:
             ordered_list.append(list(ordered[i]))
             if ("#0" in ordered[i][1]):
                 zero_index = i
+        if zero_index == 0:
+            zero_index_text = len(ordered[i][1]) - 2 - ordered[i][1].rfind("#0")
+
+            print(ordered[i][1])
+            print(zero_index_text)
         for item in ordered_list:
             if "#0" in item[1]:
                 item[1] = item[1].replace("#0", "")
 
         lines_after_zero = len(ordered_list[zero_index+1:])
         
-        
-        if (len(ordered_list[zero_index][1]) != 5):
+        print(zero_index)
+        print(ordered_list[zero_index][1])
+        if (len(ordered_list[zero_index][1]) != 5) and (zero_index != 0):
+            print(len(ordered_list[zero_index][1]))
             ordered_list.append([str(int(ordered[-1][0])+1), "Send {home}{up " + str(lines_after_zero) + "}{end}{enter}"])
             ordered_list.append([str(int(ordered[-1][0])+1), "\n" + ordered_list[zero_index][1]])
         else:
@@ -127,6 +136,9 @@ class JSON_Parser:
                 #print(ordered_list[-2][0][0])
                 if (ordered_list[-1][0][0] != ordered_list[-2][0][0]):
                     ordered_list.append([str(int(ordered[-1][0])+1), "Send {home}"])
+            else:
+                ordered_list.append([str(int(ordered[-1][0])+1), "\n" + ordered_list[zero_index][1]])
+                ordered_list.append([str(int(ordered[-1][0])+2), "\nSend {left " + str(zero_index_text) + "}"])
         
         ordered_list.pop(zero_index)
         #print(ordered_list)
@@ -141,19 +153,19 @@ class JSON_Parser:
 
 
 
-# f = open("latex_test.ahk", "w")
-# f.write("""#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-# ; #Warn  ; Enable warnings to assist with detecting common errors.
-# SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
-# SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-# SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match. \n""")
-# for editor in data["editors"]:
-#     f.write("GroupAdd, LatexEditors, " + editor + "\n")
-# f.write("#IfWinActive ahk_group LatexEditors\n")
-# for macro in data["macros"]:
-#     f.write("#Hotstring " + macro["trigger"] + "\n")
-#     f.write("::" + macro["hotstring"] + "::\n" + macro["name"] + "() {\n")
-#     json_parser = JSON_Parser(macro["text"])
-#     f.write(json_parser.parsed_text)
-#     f.write("\n}\n")
-# f.close()
+f = open("latex_test.ahk", "w")
+f.write("""#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+; #Warn  ; Enable warnings to assist with detecting common errors.
+SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
+SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match. \n""")
+for editor in data["editors"]:
+    f.write("GroupAdd, LatexEditors, " + editor + "\n")
+f.write("#IfWinActive ahk_group LatexEditors\n")
+for macro in data["macros"]:
+    f.write("#Hotstring " + macro["trigger"] + "\n")
+    f.write("::" + macro["hotstring"] + "::\n" + macro["name"] + "() {\n")
+    json_parser = JSON_Parser(macro["text"])
+    f.write(json_parser.parsed_text)
+    f.write("\n}\n")
+f.close()
