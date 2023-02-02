@@ -1,9 +1,11 @@
+*.ahk
+*.json
+TODO.md
+.gitattributes
+
 backups/
 _pycache_/
 build/
 dist/
-
-*.ahk
-*.json
 
 
