@@ -1,11 +1,11 @@
 import json
 import re
 
-f = open("test.json")
+# f = open("test.json")
 
-data = json.load(f)
+# data = json.load(f)
 
-f.close()
+# f.close()
 
 
 class JSON_Parser:
@@ -15,14 +15,17 @@ class JSON_Parser:
 
     def handle_json(self, lines):
         original_text = list(lines)
-        if("#0" not in lines[0]):
+        #print("#0" in lines[0])
+        if(not any("#0" in s for s in lines)):
             lines[0] += "#0"
         variables = []
         variables_index = {}
+        #print(lines)
         last_line = int()
         line_counter = int()
         for i, line in enumerate(lines):
             if "#" in line:
+                #print(line.count("#"))
                 if line.count("#") > 1:
                     indices = [m.start() for m in re.finditer('#', line)]
                     nums = []
@@ -42,17 +45,19 @@ class JSON_Parser:
 
                 else:
                     num = line[line.find("#")+1]
+                    #print(num)
                     if num not in variables:
                         variables.append(num)
                         variables_index[num] = [[i*10+10, line]]
                     else:
                         variables_index[num].append([i*10+10, line])
             else:
+                #print("here")
                 if "None" not in variables:
                     variables.append("None")
                     inb = line[line.find("{")+len("{"):line.rfind("}")]
                     mod_line = line.replace("{" + inb + "}", "{{}" + inb + "{}}") + "{enter}\n"
-                    variables_index["None"] = [[i*10, mod_line]]
+                    variables_index["None"] = [[i*10+10, mod_line]]
                 else:
                     inb = line[line.find("{")+len("{"):line.rfind("}")]
                     if (i != len(lines)-1):
@@ -82,12 +87,18 @@ class JSON_Parser:
                 if "!" in var[1]:
                     var[1] = var[1].replace("!", "{!}")
                 if j > 0:
+                    #print(j)
                     var[1] = "Send " + var[1].replace("#" + key, "%Text" + key + "%")
                     var[1] = var[1].replace("{%Text" + key + "%}", "{{}%Text" + key + "%{}}\n") 
                 else:
                     if key != "None" and str(int(key)-1) in variables_index:
+                        #print(key)
+                        #print(str(int(key)-1) in variables_index)
                         if str(variables_index[key][0][0])[0] == str(variables_index[str(int(key)-1)][0][0])[0]:
+                            #print("here")
                             enter_part = "Send {backspace}{}}\n"
+                        else:
+                            enter_part = "Send {backspace}{}}{enter}\n"
                     else:
                         enter_part = "Send {backspace}{}}{enter}\n"
                         
@@ -114,18 +125,18 @@ class JSON_Parser:
         if zero_index == 0:
             zero_index_text = len(ordered[i][1]) - 2 - ordered[i][1].rfind("#0")
 
-            print(ordered[i][1])
-            print(zero_index_text)
+            #print(ordered[i][1])
+            #print(zero_index_text)
         for item in ordered_list:
             if "#0" in item[1]:
                 item[1] = item[1].replace("#0", "")
 
         lines_after_zero = len(ordered_list[zero_index+1:])
         
-        print(zero_index)
-        print(ordered_list[zero_index][1])
+        #print(zero_index)
+        #print(ordered_list[zero_index][1])
         if (len(ordered_list[zero_index][1]) != 5) and (zero_index != 0):
-            print(len(ordered_list[zero_index][1]))
+            #print(len(ordered_list[zero_index][1]))
             ordered_list.append([str(int(ordered[-1][0])+1), "Send {home}{up " + str(lines_after_zero) + "}{end}{enter}"])
             ordered_list.append([str(int(ordered[-1][0])+1), "\n" + ordered_list[zero_index][1]])
         else:
@@ -153,19 +164,21 @@ class JSON_Parser:
 
 
 
-f = open("latex_test.ahk", "w")
-f.write("""#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-; #Warn  ; Enable warnings to assist with detecting common errors.
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match. \n""")
-for editor in data["editors"]:
-    f.write("GroupAdd, LatexEditors, " + editor + "\n")
-f.write("#IfWinActive ahk_group LatexEditors\n")
-for macro in data["macros"]:
-    f.write("#Hotstring " + macro["trigger"] + "\n")
-    f.write("::" + macro["hotstring"] + "::\n" + macro["name"] + "() {\n")
-    json_parser = JSON_Parser(macro["text"])
-    f.write(json_parser.parsed_text)
-    f.write("\n}\n")
-f.close()
+# f = open("latex_test.ahk", "w")
+# f.write("""#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+# ; #Warn  ; Enable warnings to assist with detecting common errors.
+# SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
+# SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+# SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match. \n""")
+# for editor in data["editors"]:
+#     f.write("GroupAdd, LatexEditors, " + editor + "\n")
+# f.write("#IfWinActive ahk_group LatexEditors\n")
+# f.write('Hotstring("EndChars", "")' + "\n")
+# for macro in data["macros"]:
+#     #f.write(":*O:" + macro["hotstring"] + " "+ "::\n" + macro["name"] + "() {\n")
+#     #f.write("#Hotstring EndChars " + macro["trigger"]  + "\n")
+#     f.write(":*O:" + macro["hotstring"] + macro["trigger"]  + "::\n" + macro["name"] + "() {\n")
+#     json_parser = JSON_Parser(macro["text"])
+#     f.write(json_parser.parsed_text)
+#     f.write("\n}\n")
+# f.close()

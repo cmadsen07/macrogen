@@ -36,6 +36,8 @@ class Ui_MainWindow(object):
         self.actionSave_AHK.setObjectName(u"actionSave_AHK")
         self.actionChange_editors = QAction(MainWindow)
         self.actionChange_editors.setObjectName(u"actionChange_editors")
+        self.actionSave_JSON = QAction(MainWindow)
+        self.actionSave_JSON.setObjectName(u"actionSave_JSON")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -177,6 +179,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSave_File)
         self.menuFile.addAction(self.actionLoad_File)
         self.menuFile.addAction(self.actionSave_AHK)
+        self.menuFile.addAction(self.actionSave_JSON)
 
         self.retranslateUi(MainWindow)
 
@@ -185,7 +188,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"LaTeX Macro generator for AHK", None))
-        self.actionSave_File.setText(QCoreApplication.translate("MainWindow", u"Save File", None))
+        self.actionSave_File.setText(QCoreApplication.translate("MainWindow", u"Save Files", None))
 #if QT_CONFIG(shortcut)
         self.actionSave_File.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
@@ -193,11 +196,15 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.actionLoad_File.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
 #endif // QT_CONFIG(shortcut)
-        self.actionSave_AHK.setText(QCoreApplication.translate("MainWindow", u"Save AHK", None))
+        self.actionSave_AHK.setText(QCoreApplication.translate("MainWindow", u"Export AHK as", None))
 #if QT_CONFIG(shortcut)
         self.actionSave_AHK.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+E", None))
 #endif // QT_CONFIG(shortcut)
         self.actionChange_editors.setText(QCoreApplication.translate("MainWindow", u"Change editors", None))
+        self.actionSave_JSON.setText(QCoreApplication.translate("MainWindow", u"Save JSON as", None))
+#if QT_CONFIG(shortcut)
+        self.actionSave_JSON.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+Shift+S", None))
+#endif // QT_CONFIG(shortcut)
         self.label.setText(QCoreApplication.translate("MainWindow", u"Macros", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Editors (One per line)", None))
         self.labelName.setText(QCoreApplication.translate("MainWindow", u"Name", None))

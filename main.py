@@ -24,6 +24,7 @@ class ActionHandler():
         self.saveAHK = window.actionSave_AHK
         self.editortext = window.editorText
         self.removeBtn = window.removeButton
+        self.saveJSON = window.actionSave_JSON
 
 
         # connect functions
@@ -33,11 +34,12 @@ class ActionHandler():
         self.trigger.currentIndexChanged.connect(self.change_trigger)
         self.hotsring.textChanged.connect(self.change_hotstring)
         self.textedit.textChanged.connect(self.change_textedit)
-        self.saveFile.triggered.connect(self.save_json)
+        self.saveFile.triggered.connect(self.save_files)
         self.loadFile.triggered.connect(self.load_json)
         self.saveAHK.triggered.connect(self.save_AHK)
         self.editortext.textChanged.connect(self.change_editor)
         self.removeBtn.clicked.connect(self.remove_macro)
+        self.saveJSON.triggered.connect(self.save_json_file)
 
         # variables
         self.counter = 0
@@ -60,9 +62,9 @@ class ActionHandler():
         match trigger_string:
             case "`t":
                 index = 0
-            case "*0":
+            case " ":
                 index = 1
-            case "*":
+            case "":
                 index = 2
         self.trigger.setCurrentIndex(index)
         self.hotsring.setText(self.macros[self.list.currentRow()]["hotstring"])
@@ -83,9 +85,9 @@ class ActionHandler():
             case 0:
                 trigger_text = "`t"
             case 1:
-                trigger_text = "*0"
+                trigger_text = " "
             case 2:
-                trigger_text = "*"
+                trigger_text = ""
         self.macros[self.list.currentRow()]["trigger"] = trigger_text
 
         self.change_title("*")
@@ -100,24 +102,11 @@ class ActionHandler():
 
         self.change_title("*")
 
-    def save_json(self):
-        self.check_editors()
-
-        save_dict = {}
-        save_dict["editors"] = self.editors
-        save_dict["macros"] = self.macros
-        json_object = json.dumps(save_dict, indent=4)
-
-        if self.currentFile == None:
-            name = QFileDialog.getSaveFileName(self.window, "Save File", "", "JSON (*.json)")
-        else:
-            name = self.currentFile
-
-        file = open(name[0], "w")
-        file.write(json_object)
-        file.close()
-
-        self.change_title("")
+    def save_files(self):
+        name = self.save_json_file()
+        s = (name[0].replace(".json", ".ahk"), "AHK (*.ahk)")
+        self.save_ahk_file(saveName=s)
+        
     
     def load_json(self):
         self.list.clear()
@@ -136,37 +125,11 @@ class ActionHandler():
             editor_string += editor + "\n"
         self.editortext.setPlainText(editor_string)
 
-        self.currentFile = name[0]
-        self.window.setWindowTitle("LaTex Macro generator for AHK (" + name[0].split("/")[-1] + ")")
-
-        self.change_title("")
+        self.currentFile = name
+        #self.window.setWindowTitle("LaTex Macro generator for AHK (" + name[0].split("/")[-1] + ")")
     
-    def save_AHK(self):
-        self.check_editors()
-
-        if self.currentFile == None:
-            name = QFileDialog.getSaveFileName(self.window, "Save File", "", "AHK (*.ahk)") 
-        else:
-            name = self.currentFile
-
-        f = open(name[0], "w")
-        f.write("""#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-        ; #Warn  ; Enable warnings to assist with detecting common errors.
-        SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
-        SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-        SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match. \n""")
-        for editor in self.editors:
-            f.write("GroupAdd, LatexEditors, " + editor + "\n")
-        f.write("#IfWinActive ahk_group LatexEditors\n")
-        for macro in self.macros:
-            f.write("#Hotstring " + macro["trigger"] + "\n")
-            f.write("::" + macro["hotstring"] + "::\n" + macro["name"] + "() {\n")
-            json_parser = jsonparser.JSON_Parser(macro["text"])
-            f.write(json_parser.parsed_text)
-            f.write("\n}\n")
-        f.close()
-
-        self.change_title("")
+    def save_AHK(self, save_as_given=False):
+        self.save_ahk_file(saveName=save_as_given)
     
     def change_editor(self):
         editor_string = self.editortext.toPlainText()
@@ -180,12 +143,6 @@ class ActionHandler():
 
         self.change_title("*")
     
-    def change_title(self, change):
-        if self.currentFile != None:
-            self.window.setWindowTitle("LaTex Macro generator for AHK (" + self.currentFile[0].split("/")[-1] + change + ")")
-        else:
-            self.window.setWindowTitle("LaTeX Macro generator for AHK (" + change + ")")
-    
     def check_editors(self):
         if self.editors == []:
             msgBox = QMessageBox()
@@ -197,7 +154,77 @@ class ActionHandler():
 
             returnValue = msgBox.exec()
             if returnValue == QMessageBox.Ok:
-                print('OK clicked')
+                #print('OK clicked')
+                return
+    
+    def save_ahk_file(self, saveName=False):
+        self.check_editors()
+
+        if saveName == False:
+            name = QFileDialog.getSaveFileName(self.window, "Save File", "", "AHK (*.ahk)") 
+            if name == ("", ""):
+                return
+        else:
+            name = saveName
+
+        self.currentFile = name
+
+        f = open(name[0], "w")
+        f.write("""#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+        ; #Warn  ; Enable warnings to assist with detecting common errors.
+        SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
+        SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+        SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match. \n""")
+        for editor in self.editors:
+            f.write("GroupAdd, LatexEditors, " + editor + "\n")
+        f.write("#IfWinActive ahk_group LatexEditors\n")
+        f.write('Hotstring("EndChars", "")' + "\n")
+        for macro in self.macros:
+            if (macro["text"] != ""):
+                f.write("::" + macro["hotstring"] + macro["trigger"] + "::\n" + macro["name"].replace(" ", "_") + "() {\n")
+                json_parser = jsonparser.JSON_Parser(macro["text"])
+                f.write(json_parser.parsed_text)
+                f.write("\n}\n")
+        f.close()
+
+        self.change_title("")
+
+    def save_json_file(self):
+        self.check_editors()
+
+        save_dict = {}
+        save_dict["editors"] = self.editors
+        save_dict["macros"] = self.macros
+        json_object = json.dumps(save_dict, indent=4)
+
+        if self.currentFile == None:
+            name = QFileDialog.getSaveFileName(self.window, "Save File", "", "JSON (*.json)")
+            if name == ("", ""):
+                return
+        else:
+            name = self.currentFile
+
+        self.currentFile = name
+
+        #print(save_dict)
+
+        file = open(name[0], "w")
+        file.write(json_object)
+        file.close()
+
+        self.change_title("")
+
+        return name
+
+        
+
+    def change_title(self, change):
+        #print(self.currentFile)
+        #print("change")
+        if self.currentFile != None:
+            self.window.setWindowTitle("LaTex Macro generator for AHK (" + self.currentFile[0].split("/")[-1] + change + ")")
+        else:
+            self.window.setWindowTitle("LaTeX Macro generator for AHK (" + change + ")")
         
     
 
