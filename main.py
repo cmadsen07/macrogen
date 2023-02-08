@@ -190,17 +190,28 @@ class ActionHandler():
 
         f = open(name[0], "w")
         f.write("""#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-        ; #Warn  ; Enable warnings to assist with detecting common errors.
-        SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
-        SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-        SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match. \n""")
+; #Warn  ; Enable warnings to assist with detecting common errors.
+SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
+SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match.
+        """)
         for editor in self.editors:
             f.write("GroupAdd, LatexEditors, " + editor + "\n")
+        f.write("""get_input() {
+Input, Text1, V, {tab}
+Send +^{Left}
+clipboard := ""
+Send ^c
+ClipWait, 1
+my_Text := regexreplace(clipboard, "\s+$")
+return my_text
+}
+""")
         f.write("#IfWinActive ahk_group LatexEditors\n")
         f.write('Hotstring("EndChars", "")' + "\n")
         for macro in self.macros:
             if (macro["text"] != ""):
-                f.write("::" + macro["hotstring"] + macro["trigger"] + "::\n" + macro["name"].replace(" ", "_") + "() {\n")
+                f.write(":*O:" + macro["hotstring"] + macro["trigger"] + "::\n" + macro["name"].replace(" ", "_") + "() {\n")
                 try:
                     json_parser = jsonparser.JSON_Parser(macro["text"])
                 except:

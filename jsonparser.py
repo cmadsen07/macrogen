@@ -127,15 +127,16 @@ class JSON_Parser:
                         # TODO: needs to check first two characters, or add leading zero when smaller than 100
                         if str(variables_index[key][0][0])[0:2] == str(variables_index[str(int(key)-1)][0][0])[0:2]:
                             #print("here")
-                            enter_part = "Send {backspace}{}}\n"
+                            enter_part = "Send {}}\n"
                         else:
-                            enter_part = "Send {backspace}{}}{enter}\n"
+                            enter_part = "Send {}}{enter}\n"
                     else:
-                        enter_part = "Send {backspace}{}}{enter}\n"
+                        enter_part = "Send {}}{enter}\n"
                         
                         
                     var[1] = "Send " + var[1].replace("{#" + key + "}", 
-                        "{{}\nInput, Text" + key + ", V, {tab}\n" + enter_part)
+                        "{{}\nText" + key + ":=get_input()\nSend %Text" + key + "%\n" + enter_part)
+                        #"{{}\nInput, Text" + key + ", V, {tab}\n" + enter_part)
     #                 "Send {backspace}{}}{enter}\n")
         final_text = ""
         #print("============")
@@ -263,9 +264,19 @@ class JSON_Parser:
 # ; #Warn  ; Enable warnings to assist with detecting common errors.
 # SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
 # SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-# SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match. \n""")
+# SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match.""")
 # for editor in data["editors"]:
 #     f.write("GroupAdd, LatexEditors, " + editor + "\n")
+# f.write("""get_input() {
+# Input, Text1, V, {tab}
+# Send +^{Left}
+# clipboard := ""
+# Send ^c
+# ClipWait, 1
+# my_Text := regexreplace(clipboard, "\s+$")
+# return my_text
+# }
+# """)
 # f.write("#IfWinActive ahk_group LatexEditors\n")
 # f.write('Hotstring("EndChars", "")' + "\n")
 # for macro in data["macros"]:
