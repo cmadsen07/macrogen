@@ -176,6 +176,7 @@ class ActionHandler():
                 return
     
     def save_ahk_file(self, saveName=False):
+        #print("here")
         self.check_editors()
 
         if saveName == False:
@@ -216,11 +217,11 @@ class ActionHandler():
                     if returnValue == QMessageBox.Ok:
                         #print('OK clicked')
                         return
+                    os.remove(name[0])
                     break
                 f.write(json_parser.parsed_text)
                 f.write("\n}\n")
         f.close()
-        os.remove(name[0])
 
         self.change_title("")
 
