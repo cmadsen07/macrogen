@@ -7,6 +7,8 @@ from PySide6.QtCore import QFile, QIODevice
 import json
 import re
 import jsonparser    
+import os
+import traceback
 
 class ActionHandler():
     def __init__(self, window):
@@ -25,6 +27,10 @@ class ActionHandler():
         self.editortext = window.editorText
         self.removeBtn = window.removeButton
         self.saveJSON = window.actionSave_JSON
+        self.newBtn = window.actionNew_File
+
+        self.macroBtn.setShortcut("Ctrl+Shift+N")
+        self.removeBtn.setShortcut("Ctrl+Shift+Del")
 
 
         # connect functions
@@ -40,6 +46,7 @@ class ActionHandler():
         self.editortext.textChanged.connect(self.change_editor)
         self.removeBtn.clicked.connect(self.remove_macro)
         self.saveJSON.triggered.connect(self.save_json_file)
+        self.newBtn.triggered.connect(self.new_file)
 
         # variables
         self.counter = 0
@@ -52,6 +59,11 @@ class ActionHandler():
         self.list.addItem(placeholder)
         self.counter += 1
         self.macros.append({"name": placeholder, "trigger": "`t", "hotstring": "", "text": ""})
+
+        self.list.setCurrentRow(self.list.count()-1)
+        self.select_macro(self.list.currentItem())
+        self.name.setFocus()
+        self.name.selectAll()
 
         self.change_title("*")
     
@@ -141,6 +153,12 @@ class ActionHandler():
         self.macros.pop(self.list.currentRow())
         self.list.takeItem(self.list.currentRow())
 
+        self.name.clear()
+        self.trigger.setCurrentIndex(0)
+        self.hotsring.clear()
+        self.textedit.clear()
+        
+        self.currentFile = None
         self.change_title("*")
     
     def check_editors(self):
@@ -182,10 +200,27 @@ class ActionHandler():
         for macro in self.macros:
             if (macro["text"] != ""):
                 f.write("::" + macro["hotstring"] + macro["trigger"] + "::\n" + macro["name"].replace(" ", "_") + "() {\n")
-                json_parser = jsonparser.JSON_Parser(macro["text"])
+                try:
+                    json_parser = jsonparser.JSON_Parser(macro["text"])
+                except:
+                    traceback.print_exc()
+                    print(macro["name"])
+                    msgBox = QMessageBox()
+                    msgBox.setIcon(QMessageBox.Information)
+                    msgBox.setText("There was an error generating the AHK script, please send the JSON file to the developer.")
+                    msgBox.setWindowTitle("Error generating ahk script")
+                    msgBox.setStandardButtons(QMessageBox.Ok)
+                    #msgBox.buttonClicked.connect(msgButtonClick)
+
+                    returnValue = msgBox.exec()
+                    if returnValue == QMessageBox.Ok:
+                        #print('OK clicked')
+                        return
+                    break
                 f.write(json_parser.parsed_text)
                 f.write("\n}\n")
         f.close()
+        os.remove(name[0])
 
         self.change_title("")
 
@@ -215,6 +250,16 @@ class ActionHandler():
         self.change_title("")
 
         return name
+    
+    def new_file(self):
+        self.currentFile = None
+        self.change_title("")
+        self.name.clear()
+        self.trigger.setCurrentIndex(0)
+        self.hotsring.clear()
+        self.textedit.clear()
+        self.list.clear()
+
 
         
 
