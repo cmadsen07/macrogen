@@ -115,7 +115,9 @@ class ActionHandler():
         self.change_title("*")
 
     def save_files(self):
-        name = self.save_json_file()
+        self.save_json_file()
+        name = self.currentFile
+
         s = (name[0].replace(".json", ".ahk"), "AHK (*.ahk)")
         self.save_ahk_file(saveName=s)
         
@@ -246,18 +248,25 @@ return my_text
 
         if self.currentFile == None:
             name = QFileDialog.getSaveFileName(self.window, "Save File", "", "JSON (*.json)")
+            #print("here2")
             if name == ("", ""):
                 return
+            self.currentFile = name
         else:
             name = self.currentFile
+        #     print("here3")
 
-        self.currentFile = name
-
-        #print(save_dict)
+        # print(save_dict)
+        # print(json_object)
+        # print(name[0].replace(".ahk", ".json"))
 
         file = open(name[0], "w")
         file.write(json_object)
         file.close()
+        #print("here")
+
+        with open(name[0].replace(".ahk", ".json"), "w") as f:
+            json.dump(save_dict, f, indent=4)
 
         self.change_title("")
 

@@ -113,6 +113,8 @@ class JSON_Parser:
                 #     indent_counter = 0
                 if "!" in var[1]:
                     var[1] = var[1].replace("!", "{!}")
+                if "^" in var[1]:
+                    var[1] = var[1].replace("^", "{^}")
                 if j > 0:
                     #print(j)
                     var[1] = "Send " + var[1].replace("#" + key, "%Text" + key + "%")
@@ -133,9 +135,12 @@ class JSON_Parser:
                     else:
                         enter_part = "Send {}}{enter}\n"
                         
-                        
-                    var[1] = "Send " + var[1].replace("{#" + key + "}", 
-                        "{{}\nText" + key + ":=get_input()\nSend %Text" + key + "%\n" + enter_part)
+                    if key != "0":
+                        var[1] = "Send " + var[1].replace("{#" + key + "}", 
+                            "{{}\nText" + key + ":=get_input()\nSend %Text" + key + "%\n" + enter_part)
+                    else:
+                        var[1] = "Send " + var[1].replace("{#" + key + "}", 
+                            "{{}#" + key + "{}}")
                         #"{{}\nInput, Text" + key + ", V, {tab}\n" + enter_part)
     #                 "Send {backspace}{}}{enter}\n")
         final_text = ""
@@ -164,7 +169,19 @@ class JSON_Parser:
         
         #print(zero_index)
         if zero_index == 0:
-            zero_index_text = len(ordered[i][1]) - 2 - ordered[i][1].rfind("#0")
+           # print(ordered[i][1].rfind("#0"))
+            #print(ordered[i][1].rfind("{}}"))
+            if (ordered[i][1].rfind("{}}")-ordered[i][1].rfind("#0") == 2):
+                zero_index_text = len(ordered[i][1]) - 2 - ordered[i][1].rfind("#0") - 2
+            else:
+                zero_index_text = len(ordered[i][1]) - 2 - ordered[i][1].rfind("#0")
+        elif zero_index == None:
+            #print(ordered[i][1])
+            zero_index = len(ordered[i][1])-1
+        #print(ordered[i][1])
+        # print(zero_index)
+        # print("text")
+        #print(zero_index_text)
 
             #print(ordered[i][1])
             #print(zero_index_text)
@@ -229,6 +246,12 @@ class JSON_Parser:
 
             if "#0" in item[1]:
                 item[1] = item[1].replace("#0", "")
+
+        #print(zero_index)
+        # print(ordered_list[0])
+        # print(zero_index)
+        # print("======")
+        
         lines_after_zero = len(ordered_list[zero_index+1:])
         #print(ordered_list[zero_index][1])
         if (len(ordered_list[zero_index][1]) != 5) and (zero_index != 0):
@@ -248,12 +271,17 @@ class JSON_Parser:
                 ordered_list.append([str(int(ordered[-1][0])+2), "\nSend {left " + str(zero_index_text) + "}"])
         
         ordered_list.pop(zero_index)
+
+        if ("\n" in ordered_list[0][1]):
+            ordered_list[0][1] = ordered_list[0][1].lstrip()
+            #print(ordered_list[0])
         
         return_string = ""
         for item in ordered_list:
-            if "    \end" not in item[1]:
+            #print(item[1])
+            if "    \end" not in item[1] and item[1]:
                 return_string += item[1]
-            else:
+            elif item[1]:
                 return_string += item[1].replace("  \end", "\end")
         return return_string
 
@@ -264,7 +292,8 @@ class JSON_Parser:
 # ; #Warn  ; Enable warnings to assist with detecting common errors.
 # SendMode Input  ; Recommended for new scripts due to its superior speed and reliability
 # SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-# SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match.""")
+# SetTitleMatchMode 2  ; 2: A window's title can contain WinTitle anywhere inside it to be a match.
+# """)
 # for editor in data["editors"]:
 #     f.write("GroupAdd, LatexEditors, " + editor + "\n")
 # f.write("""get_input() {

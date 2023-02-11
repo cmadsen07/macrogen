@@ -5,10 +5,10 @@ block_cipher = None
 
 
 a = Analysis(
-    ['specfile.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[("layout.ui", "."), ("ahk_logo.ico", ".")],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -26,17 +26,18 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='specfile',
+    name='LaTeX Macro Generator',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon="ahk_logo.ico",
 )
 coll = COLLECT(
     exe,
@@ -46,5 +47,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='specfile',
+    name='LaTeX Macro Generator',
 )
